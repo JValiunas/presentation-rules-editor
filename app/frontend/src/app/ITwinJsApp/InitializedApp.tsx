@@ -24,6 +24,7 @@ import { StagePanel, StagePanelZone } from "./ui-framework/StagePanel";
 import { UIFramework } from "./ui-framework/UIFramework";
 import { Widget } from "./ui-framework/Widget/Widget";
 import { PropertyGrid } from "./widgets/PropertyGrid";
+import { Table } from "./widgets/Table";
 import { Tree } from "./widgets/Tree";
 
 export interface InitializedAppProps {
@@ -67,6 +68,19 @@ export function InitializedApp(props: InitializedAppProps): React.ReactElement {
                       imodel !== undefined
                         ? registeredRuleset !== undefined
                           ? <PropertyGrid imodel={imodel} ruleset={registeredRuleset} />
+                          : <LoadingIndicator>Loading...</LoadingIndicator>
+                        : <OpeningIModelHint />
+                    }
+                  </Widget>
+                  <Widget
+                    id="TableWidget"
+                    label={IModelApp.localization.getLocalizedString("App:label:table-widget")}
+                    defaultState={WidgetState.Open}
+                  >
+                    {
+                      imodel !== undefined
+                        ? registeredRuleset !== undefined
+                          ? <Table imodel={imodel} rulesetId={registeredRuleset.id} />
                           : <LoadingIndicator>Loading...</LoadingIndicator>
                         : <OpeningIModelHint />
                     }

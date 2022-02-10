@@ -101,7 +101,6 @@ async function initializePresentation(appFrontend: BackendApi): Promise<void> {
     },
   });
 
-  Presentation.selection.scopes.activeScope = "top-assembly";
 }
 
 async function initializeUIFramework(): Promise<void> {

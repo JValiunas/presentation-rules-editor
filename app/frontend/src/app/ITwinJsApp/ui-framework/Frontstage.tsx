@@ -18,6 +18,8 @@ import { StagePanelProps, StagePanelZoneProps } from "./StagePanel";
 export interface FrontstageProps {
   /** Widgets on the right-hand side */
   rightPanel?: React.ReactElement<StagePanelProps>;
+  /** Widgets at the bottom */
+  bottomPanel?: React.ReactElement<StagePanelProps>;
   /** Frontstage main contents */
   children: React.ReactElement;
 }
@@ -27,7 +29,10 @@ export const Frontstage: React.FC<FrontstageProps> = (props) => {
   React.useEffect(
     () => {
       void (async () => {
-        const frontstage = new CustomFrontstageProvider(props.rightPanel);
+        const frontstage = new CustomFrontstageProvider({
+          rightPanel: props.rightPanel,
+          bottomPanel: props.bottomPanel,
+        });
         FrontstageManager.addFrontstageProvider(frontstage);
         const frontstageDef = await FrontstageManager.getFrontstageDef(frontstage.id);
         await FrontstageManager.setActiveFrontstageDef(frontstageDef);
@@ -51,32 +56,37 @@ function gatherWidgetContents(props: FrontstageProps): Map<string, ReactElement 
   const widgetContents = new Map<string, React.ReactElement | null>();
 
   // Collect all widgets from frontstage panels
-  React.Children.forEach(
-    props.rightPanel?.props.children,
-    (stagePanelZone) => {
-      React.Children.forEach(
-        stagePanelZone?.props.children,
-        (widget) => {
-          if (widget !== undefined) {
-            widgetContents.set(widget.props.id, widget.props.children ?? null);
-          }
-        },
-      );
-    },
-  );
+  function collectWidgetContentsFromStagePanels(panel: React.ReactElement<StagePanelProps>) {
+    React.Children.forEach(panel.props.children, (stagePanelZone) => {
+      React.Children.forEach(stagePanelZone?.props.children, (widget) => {
+        if (widget !== undefined)
+          widgetContents.set(widget.props.id, widget.props.children ?? null);
+      });
+    });
+  }
+  if (props.rightPanel)
+    collectWidgetContentsFromStagePanels(props.rightPanel);
+  if (props.bottomPanel)
+    collectWidgetContentsFromStagePanels(props.bottomPanel);
 
   return widgetContents;
 }
 
 /** Defines a Frontstage with content and widget shims. Content for the shims is provided via React Context API. */
+interface CustomFrontstageProviderProps {
+  rightPanel?: React.ReactElement<StagePanelProps>;
+  bottomPanel?: React.ReactElement<StagePanelProps>;
+}
 class CustomFrontstageProvider extends FrontstageProvider {
   private contentGroup: ContentGroup;
   private rightPanel: React.ReactElement<FrameworkStagePanelProps>;
+  private bottomPanel: React.ReactElement<FrameworkStagePanelProps>;
 
-  constructor(rightPanel: React.ReactElement<StagePanelProps> | undefined) {
+  constructor(props?: CustomFrontstageProviderProps) {
     super();
 
-    this.rightPanel = <FrameworkStagePanel size={rightPanel?.props.size} />;
+    this.rightPanel = createPanel(props?.rightPanel?.props);
+    this.bottomPanel = createPanel(props?.bottomPanel?.props);
 
     this.contentGroup = new ContentGroup({
       id: "root_content_group",
@@ -84,7 +94,10 @@ class CustomFrontstageProvider extends FrontstageProvider {
       contents: [{ id: "root_content_group_content", classId: ContentControlShim }],
     });
 
-    const stagePanels = new Map([[StagePanelLocation.Right, createStagePanel(rightPanel?.props.children)]]);
+    const stagePanels = new Map([
+      [StagePanelLocation.Right, createStagePanel(props?.rightPanel?.props.children)],
+      [StagePanelLocation.Bottom, createStagePanel(props?.bottomPanel?.props.children)],
+    ]);
     UiItemsManager.register(new WidgetsProvider(stagePanels));
   }
 
@@ -97,6 +110,7 @@ class CustomFrontstageProvider extends FrontstageProvider {
         contentGroup={this.contentGroup}
         defaultTool={CoreTools.selectElementCommand}
         rightPanel={this.rightPanel}
+        bottomPanel={this.bottomPanel}
       />
     );
   }
@@ -153,6 +167,16 @@ function createStagePanel(panelChildren: StagePanelProps["children"]): Map<Stage
       }),
     );
   }
+}
+
+function createPanel(props?: StagePanelProps) {
+  return (
+    <FrameworkStagePanel
+      size={props?.size}
+      // panelZones={getStagePanelZones(props?.children)}
+      // defaultState={StagePanelState.Open}
+    />
+  );
 }
 
 /** Renders ContentControl content from the context */

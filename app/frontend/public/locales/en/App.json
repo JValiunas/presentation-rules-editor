@@ -7,6 +7,7 @@
   },
   "label": {
     "editor": "Ruleset",
+    "table-widget": "Table",
     "tree-widget": "Tree",
     "property-grid-widget": "Properties",
     "viewport": "Viewport"
