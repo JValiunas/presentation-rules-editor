@@ -1,0 +1,48 @@
+trigger:
+  tags:
+    include:
+      - v*.*.*
+
+resources:
+  repositories:
+    - repository templates
+      type: git
+      name: iModelTechnologies/imodeljs-build-pipeline-scripts
+
+stages:
+  - stage: Build
+    steps:
+      - checkout: self
+        clean: true
+        fetchDepth: 1
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: 14.x
+
+      - task: CmdLine@2
+        inputs:
+          script: pnpm install
+
+      # -task: CmdLine@2
+      #   inputs:
+      #     script: pnpm audit
+
+      - task: CmdLine@2
+        inputs:
+          customCommand: build
+          workingDir: presentation-rules-editor-react/
+
+      - task: CmdLine@2
+        inputs:
+          customCommand: test:cover
+          workingDir: presentation-rules-editor-react/
+
+  -stage: Publish
+    dependsOn: Build
+    jobs:
+      - template: templates/npmjs-publish-deployment.yaml@templates
+        parameters:
+          path: presentation-rules-editor-react/lib
+          dryrun: true
+          releaseTab: pre-release
