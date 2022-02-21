@@ -9,6 +9,7 @@
     "editor": "Ruleset",
     "tree-widget": "Tree",
     "property-grid-widget": "Properties",
+    "associated-elements-widget": "Related Elements",
     "viewport": "Viewport"
   },
   "opening-imodel": "Opening iModel...",

@@ -5,8 +5,10 @@
 import * as React from "react";
 import { ControlledTree, SelectionMode, useTreeModel } from "@itwin/components-react";
 import { IModelConnection } from "@itwin/core-frontend";
-import { usePresentationTreeNodeLoader, useUnifiedSelectionTreeEventHandler } from "@itwin/presentation-components";
+import { usePresentationTreeNodeLoader } from "@itwin/presentation-components";
+import { useSelectionTrackingUnifiedSelectionTreeEventHandler } from "../eventHandlers/SelectionTrackingUnifiedSelectionTreeEventHandler";
 import { EditableRuleset } from "../EditableRuleset";
+import { KeySet } from "@itwin/presentation-common"
 
 export interface TreeProps {
   /** Width of the tree element. */
@@ -20,6 +22,8 @@ export interface TreeProps {
 
   /** {@linkcode EditableRuleset} to keep track of. */
   editableRuleset: EditableRuleset;
+
+  onNewSelectionSetCallback: (newSelection: KeySet) => void;
 }
 
 /**
@@ -27,13 +31,14 @@ export interface TreeProps {
  * {@linkcode EditableRuleset} changes.
  */
 export function Tree(props: TreeProps) {
+
   const { nodeLoader, onItemsRendered } = usePresentationTreeNodeLoader({
     imodel: props.iModel,
     ruleset: props.editableRuleset.id,
     pagingSize: 20,
     enableHierarchyAutoUpdate: true,
   });
-  const eventHandler = useUnifiedSelectionTreeEventHandler({ nodeLoader });
+  const eventHandler = useSelectionTrackingUnifiedSelectionTreeEventHandler({ nodeLoader, onNewSelectionSetCallback: props.onNewSelectionSetCallback });
   const treeModel = useTreeModel(nodeLoader.modelSource);
 
   return (

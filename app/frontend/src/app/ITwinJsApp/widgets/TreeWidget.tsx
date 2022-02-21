@@ -8,10 +8,12 @@ import { EditableRuleset, Tree } from "@itwin/presentation-rules-editor-react";
 import { AutoSizer } from "../common/AutoSizer";
 import { LoadingHint } from "../common/LoadingHint";
 import { OpeningIModelHint } from "../common/OpeningIModelHint";
+import { KeySet } from "@itwin/presentation-common"
 
 export interface TreeWidgetProps {
   imodel: IModelConnection | undefined;
   ruleset: EditableRuleset | undefined;
+  onNewSelectionSetCallback: (newSelection: KeySet) => void;
 }
 
 export function TreeWidget(props: TreeWidgetProps): React.ReactElement {
@@ -27,7 +29,7 @@ export function TreeWidget(props: TreeWidgetProps): React.ReactElement {
 
   return (
     <AutoSizer>
-      {({ width, height }) => <Tree width={width} height={height} iModel={imodel} editableRuleset={ruleset} />}
+      {({ width, height }) => <Tree width={width} height={height} iModel={imodel} editableRuleset={ruleset} onNewSelectionSetCallback={props.onNewSelectionSetCallback} />}
     </AutoSizer>
   );
 }

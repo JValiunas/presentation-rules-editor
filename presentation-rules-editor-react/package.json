@@ -62,6 +62,7 @@
     "@bentley/itwin-client": "3.0.0-dev.154",
     "@itwin/appui-abstract": "3.0.0-dev.154",
     "@itwin/components-react": "3.0.0-dev.154",
+    "@itwin/appui-react": "3.0.0-dev.154",
     "@itwin/core-bentley": "3.0.0-dev.154",
     "@itwin/core-common": "3.0.0-dev.154",
     "@itwin/core-frontend": "3.0.0-dev.154",

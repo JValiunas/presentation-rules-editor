@@ -7,6 +7,7 @@ import * as monaco from "monaco-editor";
 import * as React from "react";
 import { WidgetState } from "@itwin/appui-abstract";
 import { MessageManager, StatusMessageRenderer } from "@itwin/appui-react";
+import { KeySet } from "@itwin/presentation-common"
 import {
   CheckpointConnection, IModelApp, IModelConnection, NotifyMessageDetails, OutputMessagePriority, OutputMessageType,
 } from "@itwin/core-frontend";
@@ -21,6 +22,7 @@ import { StagePanel, StagePanelZone } from "./ui-framework/StagePanel";
 import { UIFramework } from "./ui-framework/UIFramework";
 import { Widget } from "./ui-framework/Widget/Widget";
 import { PropertyGridWidget } from "./widgets/PropertyGridWidget";
+import { AssociatedElementsWidget } from "./widgets/AssociatedElementsWidget";
 import { TreeWidget } from "./widgets/TreeWidget";
 
 export interface InitializedAppProps {
@@ -29,6 +31,12 @@ export interface InitializedAppProps {
 }
 
 export function InitializedApp(props: InitializedAppProps): React.ReactElement | null {
+
+
+  const [selectedTreeNodes, setSelectedTreeNodes] = React.useState<KeySet>(new KeySet());
+
+  const onNewSelectionSetCallback = React.useCallback((newSelection: KeySet) => { setSelectedTreeNodes(newSelection); }, []);
+
   const imodel = useIModel(props.backendApi, props.imodelIdentifier);
   const { editableRuleset, rulesetEditor } = useSoloRulesetEditor(defaultRuleset);
 
@@ -45,7 +53,7 @@ export function InitializedApp(props: InitializedAppProps): React.ReactElement |
                     label={IModelApp.localization.getLocalizedString("App:label:tree-widget")}
                     defaultState={WidgetState.Open}
                   >
-                    <TreeWidget imodel={imodel} ruleset={editableRuleset} />
+                    <TreeWidget imodel={imodel} ruleset={editableRuleset} onNewSelectionSetCallback={onNewSelectionSetCallback} />
                   </Widget>
                 </StagePanelZone>
                 <StagePanelZone>
@@ -55,6 +63,13 @@ export function InitializedApp(props: InitializedAppProps): React.ReactElement |
                     defaultState={WidgetState.Open}
                   >
                     <PropertyGridWidget imodel={imodel} ruleset={editableRuleset} />
+                  </Widget>
+                  <Widget
+                    id="AssociatedElementsWidget"
+                    label={IModelApp.localization.getLocalizedString("App:label:associated-elements-widget")}
+                    defaultState={WidgetState.Open}
+                  >
+                    <AssociatedElementsWidget imodel={imodel!} ruleset={editableRuleset.rulesetContent} selectedTreeNodes={selectedTreeNodes}/>
                   </Widget>
                 </StagePanelZone>
               </StagePanel>
