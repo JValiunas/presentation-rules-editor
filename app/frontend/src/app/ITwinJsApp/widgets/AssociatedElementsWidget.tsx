@@ -1,5 +1,5 @@
 import * as React from "react";
-import { InstanceKey, KeySet, NodeKey, Ruleset } from "@itwin/presentation-common"
+import { KeySet, Ruleset } from "@itwin/presentation-common"
 import { RelatedElementIdsProvider } from "./RelatedElementIdsProvider";
 import { IModelConnection } from "@itwin/core-frontend";
 import { Table } from "@itwin/itwinui-react";
